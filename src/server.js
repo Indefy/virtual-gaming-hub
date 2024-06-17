@@ -7,6 +7,9 @@ const { Server } = require("socket.io");
 const cookieParser = require("cookie-parser");
 const app = express();
 
+const PORT = process.env.PORT || 5002;
+const CLIENT_URL = process.env.REACT_CLIENT_URL;
+
 // Middleware for JSON body parsing
 app.use(express.json());
 
@@ -16,8 +19,8 @@ app.use(cookieParser());
 // CORS setup for Express
 app.use(
 	cors({
-		origin: "http://localhost:3000",
-		credentials: true, //access-control-allow-credentials:true
+		origin: CLIENT_URL || "http://localhost:3000",
+		credentials: true,
 		optionSuccessStatus: 200,
 	})
 );
@@ -26,7 +29,7 @@ app.use(
 const server = http.createServer(app);
 const io = new Server(server, {
 	cors: {
-		origin: "http://localhost:3000",
+		origin: CLIENT_URL || "http://localhost:3000",
 		methods: ["GET", "POST"],
 	},
 });
@@ -67,7 +70,6 @@ io.on("connection", (socket) => {
 	});
 });
 
-const PORT = process.env.PORT || 5002;
 server.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 });
