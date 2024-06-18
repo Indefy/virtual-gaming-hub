@@ -10,7 +10,10 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	// Can add more fields like email, avatar, etc. if needed
+	steamProfileUrl: {
+		type: String,
+		required: true,
+	},
 	createdAt: {
 		type: Date,
 		default: Date.now,

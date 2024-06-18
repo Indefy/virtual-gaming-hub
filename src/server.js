@@ -7,13 +7,11 @@ const { Server } = require("socket.io");
 const cookieParser = require("cookie-parser");
 const app = express();
 
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 3002;
 const CLIENT_URL = process.env.REACT_CLIENT_URL;
 
 // Middleware for JSON body parsing
 app.use(express.json());
-
-// Use cookie-parser middleware
 app.use(cookieParser());
 
 // CORS setup for Express
@@ -30,17 +28,19 @@ const server = http.createServer(app);
 const io = new Server(server, {
 	cors: {
 		origin: CLIENT_URL || "http://localhost:3000",
-		methods: ["GET", "POST"],
+		methods: ["GET", "POST", "PUT", "DELETE"],
 	},
 });
 
 // Import routes
 const indexRoutes = require("./routes/indexRoutes");
 const authRoutes = require("./routes/authRoutes");
+const steamRoutes = require("./routes/steamRoutes");
 
 // Use routes
 app.use("/auth", authRoutes);
 app.use("/", indexRoutes);
+app.use("/api/steam", steamRoutes);
 
 // Database Connection
 const connectToDatabase = async () => {

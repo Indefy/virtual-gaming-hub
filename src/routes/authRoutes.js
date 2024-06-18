@@ -6,14 +6,18 @@ const User = require("../models/User");
 
 // Register
 router.post("/register", async (req, res) => {
-	const { username, password } = req.body;
+	const { username, password, steamProfileUrl } = req.body;
 	try {
 		const existingUser = await User.findOne({ username });
 		if (existingUser) {
 			return res.status(400).json({ message: "User already exists" });
 		}
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const user = new User({ username, password: hashedPassword });
+		const user = new User({
+			username,
+			password: hashedPassword,
+			steamProfileUrl,
+		});
 		await user.save();
 		res.status(201).send("User registered");
 	} catch (err) {
@@ -44,30 +48,30 @@ router.post("/login", async (req, res) => {
 	} catch (err) {
 		res.status(500).json({ message: "Error logging in" });
 	}
+});
 
-	// Auth check
-	router.get("/check", (req, res) => {
-		const token = req.cookies.authToken;
-		if (!token) {
-			return res.json({ isAuthenticated: false });
-		}
+// Auth check
+router.get("/check", (req, res) => {
+	const token = req.cookies.authToken;
+	if (!token) {
+		return res.json({ isAuthenticated: false });
+	}
 
-		try {
-			jwt.verify(token, process.env.JWT_SECRET);
-			res.json({ isAuthenticated: true });
-		} catch (error) {
-			res.json({ isAuthenticated: false });
-		}
+	try {
+		jwt.verify(token, process.env.JWT_SECRET);
+		res.json({ isAuthenticated: true });
+	} catch (error) {
+		res.json({ isAuthenticated: false });
+	}
+});
+
+// Logout
+router.post("/logout", (req, res) => {
+	res.clearCookie("authToken", {
+		httpOnly: true,
+		sameSite: "Lax",
 	});
-
-	// Logout
-	router.post("/logout", (req, res) => {
-		res.clearCookie("authToken", {
-			httpOnly: true,
-			sameSite: "Lax",
-		});
-		res.json({ message: "Logout successful" });
-	});
+	res.json({ message: "Logout successful" });
 });
 
 module.exports = router;
